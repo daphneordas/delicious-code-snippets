@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ suite_result_title }}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
+          integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
+          crossorigin="anonymous">
+    <link rel="stylesheet" href="../../../Framework/log/HTML/custom.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h2 class="text-capitalize">{{ suite_result_title }}</h2>
+                <h4 class="text-capitalize">Test Stats:</h4>
+                <p class="attribute"><strong>Start Time: </strong>{{ headers.start_time }}</p>
+                <p class="attribute"><strong>Duration: </strong>{{ headers.duration }}</p>
+                <p class="attribute"><strong>Tests Run: </strong> {{ suite_cases|length }}</p>
+                <p class="attribute"><strong>Status: </strong> {{ headers.status }}</p>
+                <h4 class="text-capitalize">Environment:</h4>
+                <p class="attribute"><strong>System OS: </strong>{{ headers.system_os }}</p>
+                <p class="attribute"><strong>System OS Version: </strong>{{ headers.system_os_version }}</p>
+                <p class="attribute"><strong>Hostname: </strong>{{ headers.hostname }}</p>
+                <p class="attribute"><strong>System Machine: </strong> {{ headers.system_machine }}</p>
+                <p><a href="{{ headers.summary_link }}" class="text-right btn btn-dark">Summary Report</a></p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Test Case</th>
+                            <th class="text-right">Status</th>
+                        </tr>
+                    </thead>
+                    {% for test_case_name, test_case_steps in suite_cases.items() %}
+                    <tbody>
+                        {% if "pass" == test_case_steps[-1]['result'] %}
+                        <tr class="table-success">
+                            <td class="tc-name">{{ test_case_name }}</td>
+                            <td class="col-xs text-right">
+                                <span class="label text-success font-weight-bold">PASS &nbsp;&nbsp;</span>
+                        {% elif "skip" == test_case_steps[-1]['result'] %}
+                        <tr class="table-warning">
+                            <td class="tc-name">{{ test_case_name }}</td>
+                            <td class="col-xs text-right">
+                                <span class="label text-warning font-weight-bold">SKIP &nbsp;&nbsp;</span>
+                        {% elif "fail" == test_case_steps[-1]['result'] %}
+                        <tr class="table-danger">
+                            <td class="tc-name">{{ test_case_name }}</td>
+                            <td class="col-xs text-right">
+                                <span class="label text-danger font-weight-bold">FAIL &nbsp;&nbsp;</span>
+                        {% else %}
+                       <tr class="table-danger">
+                            <td class="tc-name">{{ test_case_name }}</td>
+                            <td class="col-xs text-right">
+                                <span class="label text-danger font-weight-bold">ERROR &nbsp;&nbsp;</span>
+                        {% endif %}
+                                <button class="btn btn-dark btn-sm expand" data-toggle="collapse" data-target="#{{ test_case_name }}-block">
+                                    <span>View</span>
+                                    <i class="fa fa-chevron-down"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody id="{{ test_case_name }}-block" class="collapse">
+                    {% for step in test_case_steps %}
+                        <tr>
+                            {% if step['level'] == "STEP" %}
+                                <td class="step-timestamp">{{ step['timestamp'] }}</td>
+                                <td>
+                                    <span class="badge badge-dark">{{ step['level'] }}</span>
+                                    {{ step['message']|e }}
+                                </td>
+                            {% elif step['level'] == "INFO" %}
+                                <td class="info-timestamp">{{ step['timestamp'] }}</td>
+                                <td>
+                                    <span class="badge badge-secondary">{{ step['level'] }}</span>
+                                    {{ step['message']|e }}
+                                </td>
+                            {% elif step['level'] == "ERROR" %}
+                                <td class="error-timestamp">{{ step['timestamp'] }}</td>
+                                <td>
+                                    <span class="badge badge-danger">{{ step['level'] }}</span>
+                                    {{ step['message']|e }}
+                                </td>
+                            {% elif step['level'] == "ASSERT" %}
+                                <td class="error-timestamp">{{ step['timestamp'] }}</td>
+                                <td>
+                                    <span class="badge badge-danger">{{ step['level'] }}</span>
+                                    {{ step['message']|e }}
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    {% endfor %}
+                    <tbody>
+                        <tr class="table-secondary">
+                            <td>
+                               <strong>Tests Run:</strong> {{ suite_cases|length }}
+                            </td>
+                            <td class="text-right">
+                                <span>{{ headers.status }}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+    <script>
+    $('.expand').click( function() {
+        var chevron_selector = $(this).find("i");
+        var button_text = $("span", this).text();
+        if (button_text == "View"){
+            $("span", this).text("Hide");
+            <!--chevron_selector.toggleClass('fa-chevron-up');-->
+        } else {
+            $("span", this).text("View");
+            <!--chevron_selector.toggleClass('fa-chevron-down');-->
+        }
+    });
+    </script>
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>-->
+    <!--<script type="text/javascript">-->
+        <!--$(document).ready(function(){-->
+            <!--$('td').on('click', '.btn', function(e){-->
+                <!--e.preventDefault();-->
+                <!--var $this = $(this);-->
+                <!--var $nextRow = $this.closest('tr').next('tr');-->
+                <!--$nextRow.slideToggle("fast");-->
+                <!--$this.text(function(i, text){-->
+                    <!--if (text === 'View') {-->
+                        <!--return 'Hide';-->
+                    <!--} else {-->
+                        <!--return 'View';-->
+                    <!--};-->
+                <!--});-->
+            <!--});-->
+        <!--});-->
+    <!--</script>-->
+</body>
+</html>

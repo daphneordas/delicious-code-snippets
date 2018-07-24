@@ -1,0 +1,11 @@
+td.tc-name{
+    font-size: 120%;
+}
+
+td.step-timestamp{
+    text-indent: 20px;
+}
+
+td.info-timestamp, td.error-timestamp{
+    text-indent: 40px;
+}
